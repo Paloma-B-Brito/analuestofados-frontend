@@ -1,6 +1,6 @@
 /**
  * @file Login.jsx
- * @description Sistema de Autenticação Integrado
+ * @description Sistema de Autenticação Integrado 
  * @author © 2026 Minister Noiret • Software Engineering
  */
 
@@ -13,10 +13,7 @@ function Login({ onLogin }) {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  // Endpoint do Backend Spring Boot
-  const API_AUTH_URL = "http://localhost:8080/api/auth/login";
-
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setErro("");
 
@@ -26,56 +23,43 @@ function Login({ onLogin }) {
     }
 
     setCarregando(true);
-
-    try {
-      const response = await fetch(API_AUTH_URL, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        // Mapeado exatamente para o LoginRequestDTO.java
-        body: JSON.stringify({ 
-          login: usuario, 
-          senha: senha 
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Persistência de Sessão no Browser
-        localStorage.setItem("userRole", data.role);
-        localStorage.setItem("userName", data.nome);
-        
-        // Notifica o App.js sobre a mudança de estado
-        onLogin(data.role); 
-      } else if (response.status === 401) {
-        setErro("Acesso Negado: Credenciais Inválidas.");
-      } else {
-        setErro("Erro no Core: Resposta inesperada do servidor.");
-      }
-    } catch (error) {
-      console.error("Conexão falhou:", error);
-      setErro("Servidor indisponível: Verifique a conexão com o banco Analu.");
-    } finally {
+    setTimeout(() => {
       setCarregando(false);
-    }
+      
+      const userL = usuario.toLowerCase();
+    
+      if (userL === "admin" && senha === "123") {
+        localStorage.setItem("userRole", "ADMIN");
+        localStorage.setItem("userName", "Analu");
+        onLogin("ADMIN");
+      } 
+      else if (userL === "fabrica" && senha === "123") {
+        localStorage.setItem("userRole", "FABRICA");
+        localStorage.setItem("userName", "Gestor Fabril");
+        onLogin("FABRICA");
+      } 
+      else if (userL === "loja" && senha === "123") {
+        localStorage.setItem("userRole", "LOJA");
+        localStorage.setItem("userName", "Vendedor");
+        onLogin("LOJA");
+      } 
+      else {
+        setErro("Acesso Negado: Usuário ou senha incorretos.");
+      }
+    }, 1200); 
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fcfcf9] p-4 sm:p-6 font-sans overflow-hidden">
-      {/* BACKGROUND DECORATIVO SUTIL */}
       <div className="absolute top-0 left-0 w-full h-full opacity-[0.02] pointer-events-none select-none overflow-hidden">
         <h1 className="text-[20vw] font-black leading-none">ANALU ANALU ANALU</h1>
       </div>
 
       <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-[0_40px_100px_-20px_rgba(6,78,59,0.15)] w-full max-w-[440px] animate-fade-in relative border border-slate-50">
-        
-        {/* INDICADOR DE STATUS DO SISTEMA */}
+    
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-[#064e3b] rounded-b-full"></div>
 
-        <div className="text-center mb-10 sm:mb-12">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#064e3b] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-900/30 rounded-[1.5rem] rotate-3 hover:rotate-0 transition-transform duration-500">
               <span className="text-[#b49157] text-2xl sm:text-3xl font-black italic">A</span>
           </div>
@@ -86,10 +70,17 @@ function Login({ onLogin }) {
             Executive Intelligence System
           </p>
         </div>
+        <div className="mb-6 bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 border-b border-slate-200 pb-2">Contas de Acesso (Demo)</p>
+            <ul className="text-xs text-slate-600 font-medium flex flex-col gap-1">
+                <li>CEO: <span className="font-bold text-[#064e3b]">admin</span> / Senha: <span className="font-bold">123</span></li>
+                <li>Operação: <span className="font-bold text-[#b49157]">fabrica</span> / Senha: <span className="font-bold">123</span></li>
+                <li>Vendas: <span className="font-bold text-rose-600">loja</span> / Senha: <span className="font-bold">123</span></li>
+            </ul>
+        </div>
 
-        {/* MENSAGEM DE ERRO CRÍTICO */}
         {erro && (
-          <div className="mb-8 p-4 bg-rose-50 text-rose-700 text-[10px] font-black uppercase tracking-widest border-l-[6px] border-rose-500 flex items-center gap-3 animate-shake">
+          <div className="mb-6 p-4 bg-rose-50 text-rose-700 text-[10px] font-black uppercase tracking-widest border-l-[6px] border-rose-500 flex items-center gap-3 animate-shake">
             <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -106,7 +97,7 @@ function Login({ onLogin }) {
               type="text"
               autoComplete="username"
               className="w-full bg-slate-50 border-b-2 border-slate-100 px-5 py-4 text-sm font-bold text-[#064e3b] focus:outline-none focus:border-[#b49157] focus:bg-white transition-all placeholder:text-slate-200"
-              placeholder="Ex: gestao.analu"
+              placeholder="Ex: admin"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
             />
@@ -156,7 +147,7 @@ function Login({ onLogin }) {
           </button>
         </form>
 
-        <div className="mt-12 sm:mt-16 pt-8 border-t border-slate-50 text-center relative">
+        <div className="mt-8 pt-8 border-t border-slate-50 text-center relative">
           <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.5em]">
             Protocolo de Segurança
           </p>
