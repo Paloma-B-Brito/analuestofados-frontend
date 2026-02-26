@@ -1,7 +1,7 @@
 /**
  * @file AreaLoja.jsx
  * @description Gestão Comercial com Dual-View: Operacional (Loja) e Gerencial (Admin)
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState, useEffect } from "react";

@@ -1,7 +1,7 @@
 /**
  * @file Dashboard.jsx
  * @description Core do Portal Executivo - Conectado à API Java/Postgres
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState, useEffect } from "react";

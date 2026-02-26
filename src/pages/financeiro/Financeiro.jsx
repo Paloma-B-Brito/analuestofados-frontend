@@ -1,7 +1,7 @@
 /**
  * @file Financeiro.jsx
  * @description Gestão de Precificação, Engenharia de Custos e Portal Financeiro Administrativo
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  * @requires npm install xlsx
  */
 

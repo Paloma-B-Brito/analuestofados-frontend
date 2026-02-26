@@ -1,7 +1,7 @@
 /**
  * @file Funcionarios.jsx
  * @description Gestão de Capital Humano - Fixed Version
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState, useEffect } from "react";

@@ -1,7 +1,7 @@
 /**
  * @file ModalSaidaProdutoVenda.jsx
  * @description Terminal de Checkout — Versão Integrada ao Estoque
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState } from "react";

@@ -1,7 +1,7 @@
 /**
  * @file Engenharia.jsx
  * @description Otimização de Corte, Ficha Técnica Detalhada e Engenharia de Produto 
- * @author © 2026 Minister Noiret • Software Architecture
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import React, { useState } from 'react';

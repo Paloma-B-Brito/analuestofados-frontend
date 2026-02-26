@@ -1,7 +1,7 @@
 /**
  * @file Qualidade.jsx
  * @description Portal de Certificação de Excelência e Inspeção Técnica
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import React, { useState } from 'react';

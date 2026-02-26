@@ -1,7 +1,7 @@
 /**
  * @file App.js
  * @description Core da Aplicação - Roteamento Inteligente e Gestão de Módulos
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState, useEffect } from "react";
@@ -162,7 +162,7 @@ function App() {
 
       <footer className="p-4 text-center border-t border-slate-100 bg-white mt-auto">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">
-          Analu Executive Suite • Nível de Acesso: <span className="text-[#b49157] font-bold">{role}</span> • © 2026 Minister Noiret
+          Analu Executive Suite • Nível de Acesso: <span className="text-[#b49157] font-bold">{role}</span> • © 2026 Rickman Brown
         </p>
       </footer>
     </div>

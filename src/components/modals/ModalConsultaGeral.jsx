@@ -1,7 +1,7 @@
 /**
  * @file ModalConsultaGeral.jsx
  * @description Central de Busca 
- * @author © 2026 — Rickman Brown
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState } from "react";

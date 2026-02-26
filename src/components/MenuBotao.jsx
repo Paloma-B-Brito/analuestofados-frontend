@@ -1,7 +1,7 @@
 /**
  * @file MenuBotao.jsx
  * @description Unidade de Navegação da Sidebar - Botão com Indicador de Status
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 function MenuBotao({ label, ativo, onClick }) {

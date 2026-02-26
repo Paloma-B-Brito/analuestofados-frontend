@@ -1,7 +1,7 @@
 /**
  * @file Header.jsx
  * @description Navegação ERP Enterprise
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import React, { useState, useEffect, useRef } from 'react';

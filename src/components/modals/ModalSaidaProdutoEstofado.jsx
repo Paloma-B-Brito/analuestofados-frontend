@@ -1,7 +1,7 @@
 /**
  * @file ModalSaidaProdutoEstofado.jsx
  * @description Protocolo de Logística: Saída de Fábrica 
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState } from "react";

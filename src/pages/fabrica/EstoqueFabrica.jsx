@@ -1,7 +1,7 @@
 /**
  * @file EstoqueFabrica.jsx
  * @description Gestão de Fluxo de Fábrica com Visão Executiva (Financeira) e Operacional (Técnica)
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState } from "react";

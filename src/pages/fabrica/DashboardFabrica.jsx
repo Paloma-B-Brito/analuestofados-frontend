@@ -1,7 +1,7 @@
 /**
  * @file DashboardFabrica.jsx
  * @description Centro de Comando Industrial - Monitoramento e Ação Rápida
- * @author © 2026 Minister Noiret • Software Architecture
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import React, { useState } from 'react';

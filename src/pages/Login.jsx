@@ -1,7 +1,7 @@
 /**
  * @file Login.jsx
  * @description Sistema de Autenticação Integrado 
- * @author © 2026 Minister Noiret • Software Engineering
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import { useState } from "react";
@@ -151,7 +151,7 @@ function Login({ onLogin }) {
           <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.5em]">
             Protocolo de Segurança
           </p>
-          <p className="text-[7px] font-bold text-slate-200 uppercase mt-2">© 2026 Minister Noiret</p>
+          <p className="text-[7px] font-bold text-slate-200 uppercase mt-2">© 2026 Rickman Brown</p>
         </div>
       </div>
     </div>

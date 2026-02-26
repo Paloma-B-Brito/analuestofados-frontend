@@ -1,7 +1,7 @@
 /**
  * @file Relatorios.jsx
  * @description Relatórios Gerenciais de Vendas 
- * @author © 2026 Minister Noiret • Software Architecture
+ * @author © 2026 Rickman Brown • Software Engineering
  */
 
 import React, { useState, useMemo } from 'react';
