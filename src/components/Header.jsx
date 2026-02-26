@@ -170,8 +170,7 @@ function Header({ paginaAtual, setPagina, onLogout, userRole }) {
         <div className="flex items-center gap-8">
           <div className="hidden xl:flex flex-col text-right leading-tight border-r border-white/10 pr-6">
             <p className="text-[9px] font-black uppercase text-[#b49157] tracking-wider mb-0.5">{userRole}</p>
-            {/* Atualizado para Minister Noiret */}
-            <p className="text-[10px] font-bold text-emerald-100/80">Minister Noiret</p>
+            <p className="text-[10px] font-bold text-emerald-100/80">Rickman Brown</p>
           </div>
 
           <button 
