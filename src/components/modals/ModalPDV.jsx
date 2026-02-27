@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Search,
@@ -219,7 +220,6 @@ function ModalPDV({
 
   const [buscaProduto, setBuscaProduto] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successHint, setSuccessHint] = useState("");
 
   const [venda, setVenda] = useState({
     vendedor: vendedorInicial,
@@ -304,7 +304,6 @@ function ModalPDV({
 
   function atualizarCampo(campo, valor) {
     setErrorMessage("");
-    setSuccessHint("");
 
     setVenda((prev) => ({
       ...prev,
@@ -371,7 +370,11 @@ function ModalPDV({
       }
     }
 
-    if (descontoPercentualAplicado > 0 && !isAdmin && descontoPercentualAplicado > maxDiscountPercentLoja) {
+    if (
+      descontoPercentualAplicado > 0 &&
+      !isAdmin &&
+      descontoPercentualAplicado > maxDiscountPercentLoja
+    ) {
       return `Para perfil LOJA, o desconto máximo é ${maxDiscountPercentLoja}%.`;
     }
 
@@ -403,7 +406,9 @@ function ModalPDV({
       valorBase,
       valorDesconto,
       totalLiquido,
-      valorRecebido: isCashPayment(venda.formaPagamento) ? valorRecebido : totalLiquido,
+      valorRecebido: isCashPayment(venda.formaPagamento)
+        ? valorRecebido
+        : totalLiquido,
       troco: isCashPayment(venda.formaPagamento) ? troco : 0,
       observacoes: venda.observacoes.trim(),
       dataHora: new Date().toISOString(),
@@ -412,530 +417,527 @@ function ModalPDV({
       roleResponsavel: roleNormalized,
     };
 
-    setSuccessHint("Venda validada e pronta para ser registrada.");
-
     onFinalizarVenda?.(payloadVenda);
     onClose?.();
   }
 
-  return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 font-sans text-left">
-      <div
-        className="absolute inset-0 bg-[#064e3b]/60 backdrop-blur-md animate-fade-in"
-        onClick={onClose}
-      />
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] bg-black/45 backdrop-blur-sm overflow-y-auto">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div
+          className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-5xl overflow-hidden border border-emerald-50 flex flex-col max-h-[90vh]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* HEADER */}
+          <div className="bg-[#064e3b] px-6 sm:px-8 py-6 text-white flex justify-between items-start gap-4">
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#b49157]">
+                Executive POS
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter leading-none mt-1">
+                Checkout de Ativo
+              </h2>
 
-      <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-6xl overflow-hidden animate-slide-up border border-emerald-50 flex flex-col max-h-[95vh]">
-        {/* HEADER */}
-        <div className="bg-[#064e3b] px-6 sm:px-8 py-6 text-white flex justify-between items-start gap-4">
-          <div>
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#b49157]">
-              Executive POS
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter leading-none mt-1">
-              Checkout de Ativo
-            </h2>
+              <div className="mt-3 flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-widest text-white/80">
+                  {isAdmin ? "Modo Gerencial" : "Modo Loja"}
+                </span>
 
-            <div className="mt-3 flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-widest text-white/80">
-                {isAdmin ? "Modo Gerencial" : "Modo Loja"}
-              </span>
-
-              <span className="px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-widest text-white/80">
-                Desconto máximo: {maxDiscountAllowed}%
-              </span>
+                <span className="px-3 py-1 rounded-full bg-white/10 text-[10px] font-black uppercase tracking-widest text-white/80">
+                  Desconto máximo: {maxDiscountAllowed}%
+                </span>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-white/50 hover:text-white transition-colors mt-1"
+              aria-label="Fechar modal"
+            >
+              <X size={30} />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-white/50 hover:text-white transition-colors mt-1"
-            aria-label="Fechar modal"
-          >
-            <X size={30} />
-          </button>
-        </div>
-
-        {/* CORPO */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.95fr] gap-0 overflow-hidden bg-[#f6f6f4]">
-          {/* COLUNA ESQUERDA */}
-          <div className="p-6 sm:p-7 overflow-y-auto custom-scrollbar border-r border-slate-200/70 space-y-6">
-            {/* BUSCA E PRODUTO */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <InputLabel>Selecionar item do estoque</InputLabel>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    escolha um ativo disponível para faturamento
-                  </p>
-                </div>
-
-                <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  {produtosDisponiveis.length} disponíveis
-                </div>
-              </div>
-
-              <div className="relative">
-                <Search
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  type="text"
-                  value={buscaProduto}
-                  onChange={(e) => setBuscaProduto(e.target.value)}
-                  placeholder="Buscar por código, modelo ou categoria..."
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-700 text-sm font-bold outline-none focus:border-[#b49157]"
-                />
-              </div>
-
-              <div className="max-h-[320px] overflow-y-auto custom-scrollbar pr-1 space-y-3">
-                {produtosFiltrados.length > 0 ? (
-                  produtosFiltrados.map((produto) => (
-                    <ProdutoCard
-                      key={produto.id}
-                      produto={produto}
-                      selecionado={String(venda.produtoId) === String(produto.id)}
-                      onSelect={handleSelecionarProduto}
-                    />
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-                    <Boxes size={28} className="mx-auto mb-3 text-slate-300" />
-                    <p className="text-xs font-black uppercase text-slate-400">
-                      Nenhum item encontrado na busca
+          {/* CORPO */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.12fr_0.88fr] overflow-hidden bg-[#f6f6f4]">
+            {/* COLUNA ESQUERDA */}
+            <div className="p-5 sm:p-6 overflow-y-auto custom-scrollbar border-r border-slate-200/70 space-y-5">
+              {/* BUSCA E PRODUTO */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <InputLabel>Selecionar item do estoque</InputLabel>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      escolha um ativo disponível para faturamento
                     </p>
                   </div>
-                )}
-              </div>
-            </section>
 
-            {/* DADOS DE VENDA */}
-            <section className="space-y-4">
-              <div>
-                <InputLabel>Responsável e pagamento</InputLabel>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <InputLabel>Vendedor</InputLabel>
-                  <div className="relative">
-                    <select
-                      value={venda.vendedor}
-                      onChange={(e) => atualizarCampo("vendedor", e.target.value)}
-                      disabled={vendedorBloqueado}
-                      className={`w-full appearance-none border rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157] ${
-                        vendedorBloqueado
-                          ? "bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed"
-                          : "bg-white border-slate-200"
-                      }`}
-                    >
-                      {vendedores.map((vendedor) => (
-                        <option key={vendedor.id || vendedor.nome} value={vendedor.nome}>
-                          {vendedor.nome}
-                        </option>
-                      ))}
-                    </select>
-
-                    {isAdmin ? (
-                      <Crown
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
-                      />
-                    ) : (
-                      <ShieldCheck
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
-                      />
-                    )}
+                  <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    {produtosDisponiveis.length} disponíveis
                   </div>
                 </div>
 
-                <div>
-                  <InputLabel>Método de pagamento</InputLabel>
-                  <div className="relative">
-                    <select
-                      value={venda.formaPagamento}
-                      onChange={(e) =>
-                        atualizarCampo("formaPagamento", e.target.value)
-                      }
-                      className="w-full appearance-none bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
-                    >
-                      {METODOS_PAGAMENTO.map((metodo) => (
-                        <option key={metodo} value={metodo}>
-                          {metodo}
-                        </option>
-                      ))}
-                    </select>
-
-                    {isCashPayment(venda.formaPagamento) ? (
-                      <Banknote
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
-                      />
-                    ) : (
-                      <CreditCard
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
-                      />
-                    )}
-                  </div>
+                <div className="relative">
+                  <Search
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+                  <input
+                    type="text"
+                    value={buscaProduto}
+                    onChange={(e) => setBuscaProduto(e.target.value)}
+                    placeholder="Buscar por código, modelo ou categoria..."
+                    className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-700 text-sm font-bold outline-none focus:border-[#b49157]"
+                  />
                 </div>
-              </div>
 
-              {isCardPayment(venda.formaPagamento) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <InputLabel>Parcelamento</InputLabel>
-                    <select
-                      value={venda.parcelas}
-                      onChange={(e) => atualizarCampo("parcelas", e.target.value)}
-                      className="w-full appearance-none bg-white border border-slate-200 rounded-2xl px-5 py-4 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
-                    >
-                      {PARCELAS_CARTAO.map((parcela) => (
-                        <option key={parcela} value={parcela}>
-                          {parcela}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <InputLabel>Desconto (%)</InputLabel>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        max={maxDiscountAllowed}
-                        step="1"
-                        value={venda.descontoPercentual}
-                        onChange={handleChangeDesconto}
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
+                <div className="max-h-[260px] overflow-y-auto custom-scrollbar pr-1 space-y-3">
+                  {produtosFiltrados.length > 0 ? (
+                    produtosFiltrados.map((produto) => (
+                      <ProdutoCard
+                        key={produto.id}
+                        produto={produto}
+                        selecionado={String(venda.produtoId) === String(produto.id)}
+                        onSelect={handleSelecionarProduto}
                       />
-                      <BadgePercent
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                      <Boxes size={28} className="mx-auto mb-3 text-slate-300" />
+                      <p className="text-xs font-black uppercase text-slate-400">
+                        Nenhum item encontrado na busca
+                      </p>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
+              </section>
 
-              {!isCardPayment(venda.formaPagamento) && (
+              {/* DADOS DE VENDA */}
+              <section className="space-y-4">
+                <div>
+                  <InputLabel>Responsável e pagamento</InputLabel>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <InputLabel>Desconto (%)</InputLabel>
+                    <InputLabel>Vendedor</InputLabel>
                     <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        max={maxDiscountAllowed}
-                        step="1"
-                        value={venda.descontoPercentual}
-                        onChange={handleChangeDesconto}
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
-                      />
-                      <BadgePercent
-                        size={18}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <select
+                        value={venda.vendedor}
+                        onChange={(e) => atualizarCampo("vendedor", e.target.value)}
+                        disabled={vendedorBloqueado}
+                        className={`w-full appearance-none border rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157] ${
+                          vendedorBloqueado
+                            ? "bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed"
+                            : "bg-white border-slate-200"
+                        }`}
+                      >
+                        {vendedores.map((vendedor) => (
+                          <option
+                            key={vendedor.id || vendedor.nome}
+                            value={vendedor.nome}
+                          >
+                            {vendedor.nome}
+                          </option>
+                        ))}
+                      </select>
+
+                      {isAdmin ? (
+                        <Crown
+                          size={18}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
+                        />
+                      ) : (
+                        <ShieldCheck
+                          size={18}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
+                        />
+                      )}
                     </div>
                   </div>
 
-                  {isCashPayment(venda.formaPagamento) ? (
+                  <div>
+                    <InputLabel>Método de pagamento</InputLabel>
+                    <div className="relative">
+                      <select
+                        value={venda.formaPagamento}
+                        onChange={(e) =>
+                          atualizarCampo("formaPagamento", e.target.value)
+                        }
+                        className="w-full appearance-none bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
+                      >
+                        {METODOS_PAGAMENTO.map((metodo) => (
+                          <option key={metodo} value={metodo}>
+                            {metodo}
+                          </option>
+                        ))}
+                      </select>
+
+                      {isCashPayment(venda.formaPagamento) ? (
+                        <Banknote
+                          size={18}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
+                        />
+                      ) : (
+                        <CreditCard
+                          size={18}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#064e3b]"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {isCardPayment(venda.formaPagamento) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <InputLabel>Valor recebido</InputLabel>
+                      <InputLabel>Parcelamento</InputLabel>
+                      <select
+                        value={venda.parcelas}
+                        onChange={(e) => atualizarCampo("parcelas", e.target.value)}
+                        className="w-full appearance-none bg-white border border-slate-200 rounded-2xl px-5 py-4 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
+                      >
+                        {PARCELAS_CARTAO.map((parcela) => (
+                          <option key={parcela} value={parcela}>
+                            {parcela}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <InputLabel>Desconto (%)</InputLabel>
                       <div className="relative">
                         <input
                           type="number"
                           min="0"
-                          step="0.01"
-                          value={venda.valorRecebido}
-                          onChange={handleChangeValorRecebido}
-                          placeholder="0,00"
+                          max={maxDiscountAllowed}
+                          step="1"
+                          value={venda.descontoPercentual}
+                          onChange={handleChangeDesconto}
                           className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
                         />
-                        <Calculator
+                        <BadgePercent
                           size={18}
                           className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
                         />
                       </div>
                     </div>
-                  ) : (
-                    <div />
-                  )}
-                </div>
-              )}
-            </section>
+                  </div>
+                )}
 
-            {/* CLIENTE */}
-            <section className="space-y-4">
-              <div>
-                <InputLabel>Dados do cliente</InputLabel>
-              </div>
+                {!isCardPayment(venda.formaPagamento) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <InputLabel>Desconto (%)</InputLabel>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max={maxDiscountAllowed}
+                          step="1"
+                          value={venda.descontoPercentual}
+                          onChange={handleChangeDesconto}
+                          className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
+                        />
+                        <BadgePercent
+                          size={18}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                      </div>
+                    </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isCashPayment(venda.formaPagamento) ? (
+                      <div>
+                        <InputLabel>Valor recebido</InputLabel>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={venda.valorRecebido}
+                            onChange={handleChangeValorRecebido}
+                            placeholder="0,00"
+                            className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-black outline-none focus:border-[#b49157]"
+                          />
+                          <Calculator
+                            size={18}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                )}
+              </section>
+
+              {/* CLIENTE */}
+              <section className="space-y-4">
                 <div>
-                  <InputLabel>Nome do cliente</InputLabel>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={venda.clienteNome}
-                      onChange={(e) =>
-                        atualizarCampo("clienteNome", e.target.value)
-                      }
-                      placeholder="Nome completo"
-                      className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
-                    />
-                    <UserRound
-                      size={18}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                  </div>
+                  <InputLabel>Dados do cliente</InputLabel>
                 </div>
 
-                <div>
-                  <InputLabel>CPF</InputLabel>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={venda.clienteCPF}
-                      onChange={handleChangeCPF}
-                      placeholder="000.000.000-00"
-                      className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
-                    />
-                    <IdCard
-                      size={18}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <InputLabel>Telefone</InputLabel>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={venda.clienteTelefone}
-                      onChange={handleChangeTelefone}
-                      placeholder="(83) 99999-9999"
-                      className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
-                    />
-                    <Phone
-                      size={18}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <InputLabel>Observações</InputLabel>
-                  <div className="relative">
-                    <textarea
-                      value={venda.observacoes}
-                      onChange={(e) =>
-                        atualizarCampo("observacoes", e.target.value)
-                      }
-                      rows={4}
-                      placeholder="Ex: entrega combinada para sexta, cliente pediu contato por WhatsApp..."
-                      className="w-full resize-none bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
-                    />
-                    <FileText
-                      size={18}
-                      className="absolute right-4 top-4 text-slate-400"
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* COLUNA DIREITA */}
-          <div className="p-6 sm:p-7 overflow-y-auto custom-scrollbar bg-[#f0f0ec] space-y-5">
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.22em] mb-3">
-                Resumo financeiro da venda
-              </p>
-            </div>
-
-            <div className="bg-[#071437] p-6 rounded-[2rem] text-white relative overflow-hidden shadow-xl">
-              <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[#b49157]/10" />
-              <div className="relative z-10 space-y-5">
-                <div className="pb-4 border-b border-white/10">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#b49157]">
-                    Item selecionado
-                  </p>
-                  <p className="mt-2 text-lg font-black uppercase break-words">
-                    {produtoSelecionado?.modelo || "Nenhum item selecionado"}
-                  </p>
-                  {produtoSelecionado?.id ? (
-                    <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      Código: {produtoSelecionado.id}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="space-y-3">
-                  <SummaryLine
-                    label="Vendedor"
-                    value={venda.vendedor || "--"}
-                  />
-                  <SummaryLine
-                    label="Pagamento"
-                    value={venda.formaPagamento || "--"}
-                  />
-                  {isCardPayment(venda.formaPagamento) && (
-                    <SummaryLine
-                      label="Parcelas"
-                      value={venda.parcelas || "1x"}
-                    />
-                  )}
-                  <SummaryLine
-                    label="Valor base"
-                    value={formatCurrency(valorBase)}
-                  />
-                  <SummaryLine
-                    label="Desconto"
-                    value={`${descontoPercentualAplicado}%`}
-                    valueClassName="text-rose-400"
-                  />
-                  <SummaryLine
-                    label="Valor do desconto"
-                    value={formatCurrency(valorDesconto)}
-                    valueClassName="text-rose-400"
-                  />
-
-                  {isCashPayment(venda.formaPagamento) && (
-                    <>
-                      <SummaryLine
-                        label="Valor recebido"
-                        value={formatCurrency(valorRecebido)}
-                      />
-                      <SummaryLine
-                        label="Troco"
-                        value={formatCurrency(troco)}
-                        valueClassName="text-emerald-400"
-                      />
-                    </>
-                  )}
-                </div>
-
-                <div className="pt-5 border-t border-white/10 flex items-end justify-between gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      Total líquido
-                    </p>
-                    <p className="mt-2 text-4xl font-black tracking-tighter text-[#d6ae67]">
-                      {formatCurrency(totalLiquido)}
-                    </p>
+                    <InputLabel>Nome do cliente</InputLabel>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={venda.clienteNome}
+                        onChange={(e) =>
+                          atualizarCampo("clienteNome", e.target.value)
+                        }
+                        placeholder="Nome completo"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
+                      />
+                      <UserRound
+                        size={18}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                    </div>
                   </div>
 
-                  <div className="px-3 py-2 rounded-xl bg-emerald-900/70 text-emerald-300 text-[10px] font-black uppercase tracking-wide whitespace-nowrap">
-                    Pronto para receber
+                  <div>
+                    <InputLabel>CPF</InputLabel>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={venda.clienteCPF}
+                        onChange={handleChangeCPF}
+                        placeholder="000.000.000-00"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
+                      />
+                      <IdCard
+                        size={18}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <InputLabel>Telefone</InputLabel>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={venda.clienteTelefone}
+                        onChange={handleChangeTelefone}
+                        placeholder="(83) 99999-9999"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
+                      />
+                      <Phone
+                        size={18}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <InputLabel>Observações</InputLabel>
+                    <div className="relative">
+                      <textarea
+                        value={venda.observacoes}
+                        onChange={(e) =>
+                          atualizarCampo("observacoes", e.target.value)
+                        }
+                        rows={4}
+                        placeholder="Ex: entrega combinada para sexta, cliente pediu contato por WhatsApp..."
+                        className="w-full resize-none bg-white border border-slate-200 rounded-2xl px-5 py-4 pr-12 text-[#064e3b] text-base font-bold outline-none focus:border-[#b49157]"
+                      />
+                      <FileText
+                        size={18}
+                        className="absolute right-4 top-4 text-slate-400"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </section>
             </div>
 
-            <ValidationMessage message={errorMessage} />
-
-            {descontoFoiLimitado && (
-              <ValidationMessage
-                message={`O desconto foi ajustado automaticamente para o limite permitido de ${maxDiscountAllowed}%.`}
-              />
-            )}
-
-            {!errorMessage && formValido && (
-              <SuccessMessage message="Checkout validado. Você já pode finalizar a venda." />
-            )}
-
-            <div className="bg-white rounded-[2rem] border border-slate-200 p-5 space-y-4">
-              <div className="flex items-center gap-2">
-                <ReceiptText size={18} className="text-[#b49157]" />
-                <p className="text-xs font-black uppercase tracking-widest text-[#064e3b]">
-                  Checklist do checkout
+            {/* COLUNA DIREITA */}
+            <div className="p-5 sm:p-6 overflow-y-auto custom-scrollbar bg-[#f0f0ec] space-y-4">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.22em] mb-3">
+                  Resumo financeiro da venda
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-slate-500">
-                    Produto selecionado
-                  </span>
-                  {venda.produtoId ? (
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                  ) : (
-                    <AlertTriangle size={16} className="text-amber-500" />
-                  )}
-                </div>
+              <div className="bg-[#071437] p-6 rounded-[2rem] text-white relative overflow-hidden shadow-xl">
+                <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[#b49157]/10" />
+                <div className="relative z-10 space-y-5">
+                  <div className="pb-4 border-b border-white/10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#b49157]">
+                      Item selecionado
+                    </p>
+                    <p className="mt-2 text-lg font-black uppercase break-words">
+                      {produtoSelecionado?.modelo || "Nenhum item selecionado"}
+                    </p>
+                    {produtoSelecionado?.id ? (
+                      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Código: {produtoSelecionado.id}
+                      </p>
+                    ) : null}
+                  </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-slate-500">
-                    Cliente identificado
-                  </span>
-                  {venda.clienteNome.trim() ? (
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                  ) : (
-                    <AlertTriangle size={16} className="text-amber-500" />
-                  )}
-                </div>
+                  <div className="space-y-3">
+                    <SummaryLine label="Vendedor" value={venda.vendedor || "--"} />
+                    <SummaryLine
+                      label="Pagamento"
+                      value={venda.formaPagamento || "--"}
+                    />
+                    {isCardPayment(venda.formaPagamento) && (
+                      <SummaryLine label="Parcelas" value={venda.parcelas || "1x"} />
+                    )}
+                    <SummaryLine
+                      label="Valor base"
+                      value={formatCurrency(valorBase)}
+                    />
+                    <SummaryLine
+                      label="Desconto"
+                      value={`${descontoPercentualAplicado}%`}
+                      valueClassName="text-rose-400"
+                    />
+                    <SummaryLine
+                      label="Valor do desconto"
+                      value={formatCurrency(valorDesconto)}
+                      valueClassName="text-rose-400"
+                    />
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-slate-500">
-                    Pagamento definido
-                  </span>
-                  {venda.formaPagamento ? (
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                  ) : (
-                    <AlertTriangle size={16} className="text-amber-500" />
-                  )}
-                </div>
+                    {isCashPayment(venda.formaPagamento) && (
+                      <>
+                        <SummaryLine
+                          label="Valor recebido"
+                          value={formatCurrency(valorRecebido)}
+                        />
+                        <SummaryLine
+                          label="Troco"
+                          value={formatCurrency(troco)}
+                          valueClassName="text-emerald-400"
+                        />
+                      </>
+                    )}
+                  </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-slate-500">
-                    Valor validado
-                  </span>
-                  {totalLiquido >= 0 && produtoSelecionado ? (
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                  ) : (
-                    <AlertTriangle size={16} className="text-amber-500" />
-                  )}
+                  <div className="pt-5 border-t border-white/10 flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Total líquido
+                      </p>
+                      <p className="mt-2 text-4xl font-black tracking-tighter text-[#d6ae67]">
+                        {formatCurrency(totalLiquido)}
+                      </p>
+                    </div>
+
+                    <div className="px-3 py-2 rounded-xl bg-emerald-900/70 text-emerald-300 text-[10px] font-black uppercase tracking-wide whitespace-nowrap">
+                      Pronto para receber
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <button
-                type="button"
-                onClick={handleFinalizar}
-                disabled={!formValido}
-                className="w-full py-4 bg-[#064e3b] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#08634b] transition-colors disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <ReceiptText size={16} />
-                Finalizar e gerar recibo
-              </button>
+              <ValidationMessage message={errorMessage} />
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full py-4 bg-white border border-slate-200 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-colors"
-              >
-                Cancelar operação
-              </button>
+              {descontoFoiLimitado && (
+                <ValidationMessage
+                  message={`O desconto foi ajustado automaticamente para o limite permitido de ${maxDiscountAllowed}%.`}
+                />
+              )}
+
+              {!errorMessage && formValido && (
+                <SuccessMessage message="Checkout validado. Você já pode finalizar a venda." />
+              )}
+
+              <div className="bg-white rounded-[2rem] border border-slate-200 p-5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <ReceiptText size={18} className="text-[#b49157]" />
+                  <p className="text-xs font-black uppercase tracking-widest text-[#064e3b]">
+                    Checklist do checkout
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold text-slate-500">
+                      Produto selecionado
+                    </span>
+                    {venda.produtoId ? (
+                      <CheckCircle2 size={16} className="text-emerald-600" />
+                    ) : (
+                      <AlertTriangle size={16} className="text-amber-500" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold text-slate-500">
+                      Cliente identificado
+                    </span>
+                    {venda.clienteNome.trim() ? (
+                      <CheckCircle2 size={16} className="text-emerald-600" />
+                    ) : (
+                      <AlertTriangle size={16} className="text-amber-500" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold text-slate-500">
+                      Pagamento definido
+                    </span>
+                    {venda.formaPagamento ? (
+                      <CheckCircle2 size={16} className="text-emerald-600" />
+                    ) : (
+                      <AlertTriangle size={16} className="text-amber-500" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold text-slate-500">
+                      Valor validado
+                    </span>
+                    {totalLiquido >= 0 && produtoSelecionado ? (
+                      <CheckCircle2 size={16} className="text-emerald-600" />
+                    ) : (
+                      <AlertTriangle size={16} className="text-amber-500" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <button
+                  type="button"
+                  onClick={handleFinalizar}
+                  disabled={!formValido}
+                  className="w-full py-4 bg-[#064e3b] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#08634b] transition-colors disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <ReceiptText size={16} />
+                  Finalizar e gerar recibo
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-4 bg-white border border-slate-200 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar operação
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* FOOTER */}
-        <div className="bg-slate-50 py-3 border-t border-slate-100">
-          <p className="text-[7px] font-black text-slate-300 uppercase tracking-[0.5em] text-center">
-            Analu Executive POS • Rickman Brown
-          </p>
+          {/* FOOTER */}
+          <div className="bg-slate-50 py-3 border-t border-slate-100">
+            <p className="text-[7px] font-black text-slate-300 uppercase tracking-[0.5em] text-center">
+              Analu Executive POS • Rickman Brown
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 export default ModalPDV;
