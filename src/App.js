@@ -22,7 +22,8 @@ import EstoqueFabrica from "./pages/fabrica/EstoqueFabrica";
 import GestaoInsumos from "./pages/fabrica/GestaoInsumos";
 import Qualidade from './pages/fabrica/Qualidade';   
 import Manutencao from './pages/fabrica/Manutencao'; 
-import Engenharia from './pages/fabrica/Engenharia'; // NOVO MÓDULO
+import Engenharia from './pages/fabrica/Engenharia'; 
+import DashboardFabricaFuncionarios from './pages/fabrica/DashboardFabricaFuncionarios';
 
 // --- 4. MÓDULO LOJA (PASTA /loja) ---
 import DashboardLoja from './pages/loja/DashboardLoja';
@@ -31,6 +32,7 @@ import PDV from "./pages/loja/PDV";
 import Pedidos from './pages/loja/Pedidos';        
 import Clientes from './pages/loja/Clientes';      
 import Entregas from './pages/loja/Entregas';      
+import DashboardLojaFuncionarios from './pages/loja/DashboardLojaFuncionarios';
 
 // --- 5. MÓDULO FINANCEIRO (PASTA /financeiro) ---
 import DashboardFinanceiro from './pages/financeiro/DashboardFinanceiro';
@@ -87,7 +89,7 @@ function App() {
     // --- 1. VISÃO DO VENDEDOR (LOJA) ---
     if (role === "LOJA") {
       switch (pagina) {
-        case "DashboardLoja": return <DashboardLoja />; 
+        case "DashboardLojaFuncionarios": return <DashboardLojaFuncionarios />; 
         case "Loja": return <AreaLoja userRole={role} />; 
         case "PDV": return <PDV />;                       
         case "Pedidos": return <Pedidos />;               
@@ -100,7 +102,7 @@ function App() {
     // --- 2. VISÃO DO OPERADOR (FÁBRICA) ---
     if (role === "FABRICA") {
       switch (pagina) {
-        case "DashboardFabrica": return <DashboardFabrica />; 
+        case "DashboardFabricaFuncionarios": return <DashboardFabricaFuncionarios />; 
         case "Engenharia": return <Engenharia />; // NOVO
         case "Estoque": return <EstoqueFabrica userRole={role} />;
         case "Suprimentos": return <GestaoInsumos />;
